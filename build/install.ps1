@@ -13,7 +13,7 @@ if (-not (Test-Path $exe)) {
 }
 
 $nativeDir = Join-Path $modRoot 'native'
-$project = Join-Path $modRoot 'src\ThiefSimulator2Mod\ThiefSimulator2Mod.csproj'
+$mergeScript = Join-Path $PSScriptRoot 'merge.ps1'
 $managedDir = Join-Path $GameRoot 'Thief Simulator 2_Data\Managed'
 if (-not (Test-Path (Join-Path $managedDir 'Assembly-CSharp.dll'))) {
     throw "Assembly-CSharp.dll was not found in '$managedDir'. Pass -GameRoot '<game folder>'."
@@ -43,10 +43,9 @@ Write-Host '== Building native loader =='
 & (Join-Path $nativeDir 'build.ps1')
 
 Write-Host '== Building Thief2Enhanced =='
-# The project discovers the game assemblies through GameRoot. Default works
-# only when this repository is <game>\Mod; a standalone clone must pass it.
-& dotnet build $project -c Release -v minimal "-p:GameRoot=$GameRoot"
-if ($LASTEXITCODE -ne 0) { throw 'Managed build failed.' }
+# merge.ps1 builds the managed project and folds Harmony/MonoMod into the DLL.
+& $mergeScript -GameRoot $GameRoot
+if ($LASTEXITCODE -ne 0) { throw 'Merged managed build failed.' }
 
 Write-Host '== Installing =='
 $engine = Join-Path $GameRoot 'UnityPlayer.dll'
@@ -87,10 +86,6 @@ if (-not $engineInstalled) { throw 'Could not install the native proxy (UnityPla
 Copy-WithRetry -Source (Join-Path $modRoot 'src\ThiefSimulator2Mod\bin\Release\Thief2Enhanced.dll') -Destination (Join-Path $managedDir 'Thief2Enhanced.dll')
 # Remove the pre-rename assembly so Mono cannot load a stale copy.
 Remove-Item -LiteralPath (Join-Path $managedDir 'ThiefSimulator2Mod.dll') -Force -ErrorAction SilentlyContinue
-
-foreach ($lib in @('0Harmony.dll', 'Mono.Cecil.dll', 'MonoMod.Utils.dll', 'MonoMod.RuntimeDetour.dll')) {
-    Copy-WithRetry -Source (Join-Path $modRoot "lib\$lib") -Destination (Join-Path $managedDir $lib)
-}
 
 New-Item -ItemType Directory -Force -Path (Join-Path $GameRoot 'Mod\config'), (Join-Path $GameRoot 'Mod\logs') | Out-Null
 

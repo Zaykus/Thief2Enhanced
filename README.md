@@ -27,6 +27,8 @@ The window is resizable (drag the bottom-right grip) and remembers its size.
 - Windows 10/11 x64
 - Thief Simulator 2 (Unity 2020.3, Mono x64)
 - .NET SDK 8 or newer
+- ILRepack global tool for merging dependencies:
+  `dotnet tool install --global dotnet-ilrepack`
 - Visual Studio Build Tools with the **Desktop development with C++** workload
   and a Windows 10/11 SDK (only needed to rebuild the native proxy)
 
@@ -119,17 +121,33 @@ defaultskillpoints=99
 older configs; the menu starts with its built-in values. The speed keys are
 likewise ignored — use the sliders instead.
 
+### Saved settings
+
+`<game>\Mod\config\settings.cfg` is written automatically about 1.5 seconds
+after you change a safe setting. It stores only:
+
+- movement sliders: `walkspeed`, `runspeed`, `crouchspeed`, `jumpheight`,
+  `gravity`, `ghostspeed`
+- teleport slots: `slot1=x,y,z` through `slot8=x,y,z` (`empty` when unset)
+
+Window size is saved separately in `PlayerPrefs`. Cheats, money, skills,
+inventory, time/weather and vehicle states are intentionally **not** saved.
+Delete `settings.cfg` while the game is closed to restore movement defaults
+and empty teleport slots.
+
 ## Building manually
 
 ```powershell
 cd native
 .\build.ps1
 
-cd ..\src\ThiefSimulator2Mod
-dotnet build -c Release -p:GameRoot="C:\Program Files (x86)\Steam\steamapps\common\Thief Simulator 2"
+cd ..
+.\build\merge.ps1 -GameRoot "C:\Program Files (x86)\Steam\steamapps\common\Thief Simulator 2"
 ```
 
-The `-p:GameRoot` argument is optional when the repository lives at
+`merge.ps1` compiles the managed project and merges Harmony, MonoMod and
+Mono.Cecil into `Thief2Enhanced.dll`, so no extra runtime DLLs are shipped.
+The `-GameRoot` argument is optional when the repository lives at
 `<game>\Mod`; it is required for a standalone clone because the project
 compiles against the game's own assemblies. `native\build.ps1` auto-detects the
 newest MSVC toolset and Windows SDK.
@@ -137,10 +155,10 @@ newest MSVC toolset and Windows SDK.
 ## Repository layout
 
 ```
-build/                  install / uninstall scripts
+build/                  install / uninstall / merge scripts
 config/mod.cfg          sample configuration
 fonts/                  Chakra Petch + IBM Plex Sans (SIL OFL, licenses included)
-lib/                    runtime libraries (Harmony, MonoMod, Mono.Cecil)
+lib/                    libraries merged into the DLL at build time (Harmony, MonoMod, Mono.Cecil)
 native/                 C++ UnityPlayer proxy + build script
 src/ThiefSimulator2Mod/
     NativeEntry.cs      called by the native loader
@@ -156,11 +174,19 @@ src/ThiefSimulator2Mod/
 - The menu is IMGUI, not uGUI. It is drawn from `ModGuiHost.OnGUI()`.
 - Fonts are embedded in the managed DLL, extracted to `%TEMP%` and registered
   privately with `AddFontResourceEx(FR_PRIVATE)` at runtime.
+- Harmony/MonoMod are merged into `Thief2Enhanced.dll` at build time, so the
+  installed mod needs only the proxy and that one managed DLL.
 - This is a single-player mod. Use it offline only.
 - **No game files are included in this repository.** The `decompiled/`, `docs/`
   and `tools/` folders used during development are intentionally excluded, as
   is the game's own `Thief Simulator 2.dll`.
 - Third-party notices are in [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## Credits
+
+- Mod developer: **Zaykus**
+- House quote: *"Any sufficiently advanced technology is indistinguishable from
+  a good lockpick."* — Clarke's Third Law, thief edition.
 
 ## Troubleshooting
 

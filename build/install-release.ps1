@@ -81,10 +81,6 @@ Copy-WithRetry -Source $managedSource -Destination (Join-Path $managedDir 'Thief
 # Remove the pre-rename assembly so Mono cannot load a stale copy.
 Remove-Item -LiteralPath (Join-Path $managedDir 'ThiefSimulator2Mod.dll') -Force -ErrorAction SilentlyContinue
 
-foreach ($lib in @('0Harmony.dll', 'Mono.Cecil.dll', 'MonoMod.Utils.dll', 'MonoMod.RuntimeDetour.dll')) {
-    Copy-WithRetry -Source (Join-Path $modRoot "lib\$lib") -Destination (Join-Path $managedDir $lib)
-}
-
 $configDir = Join-Path $GameRoot 'Mod\config'
 New-Item -ItemType Directory -Force -Path $configDir, (Join-Path $GameRoot 'Mod\logs') | Out-Null
 $configFile = Join-Path $configDir 'mod.cfg'

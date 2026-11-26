@@ -131,9 +131,11 @@ static DWORD WINAPI InjectThread(LPVOID)
     // Assembly.Location / AppDomain.BaseDirectory are empty in Unity Mono.
     SetEnvironmentVariableA("THIEF_ENHANCED_ROOT", exeA);
 
-    // Explicitly preload the assemblies our mod references. Mono resolves a
-    // reference by simple name from the already-loaded set, so this guarantees
-    // our Harmony patches target the very same Assembly-CSharp the game uses.
+    // Explicitly preload the engine assemblies our mod references. Mono resolves
+    // a reference by simple name from the already-loaded set, so this guarantees
+    // our patches target the very same Assembly-CSharp the game uses.
+    // Harmony / MonoMod are merged into Thief2Enhanced.dll and are deliberately
+    // not loaded separately.
     static const char *deps[] = {
         "netstandard.dll",
         "UnityEngine.dll",
@@ -145,13 +147,9 @@ static DWORD WINAPI InjectThread(LPVOID)
         "UnityEngine.PhysicsModule.dll",
         "UnityEngine.AudioModule.dll",
         "UnityEngine.TextRenderingModule.dll",
-        "Unity.TextMeshPro.dll",
+        "Unity.TextMeshPro.dll"
         // Assembly-CSharp is intentionally NOT preloaded: Unity loads it itself.
         // Loading a second copy would make our patches target the wrong assembly.
-        "Mono.Cecil.dll",
-        "MonoMod.Utils.dll",
-        "MonoMod.RuntimeDetour.dll",
-        "0Harmony.dll"
     };
     for (int i = 0; i < (int)(sizeof(deps) / sizeof(deps[0])); ++i)
     {
@@ -160,7 +158,7 @@ static DWORD WINAPI InjectThread(LPVOID)
         if (!asmOpen(path, NULL))
             Log("  [!] dependency could not be preloaded: %s", deps[i]);
     }
-    Log("Dependencies preloaded.");
+    Log("Engine assemblies preloaded.");
 
     char modPath[MAX_PATH];
     snprintf(modPath, MAX_PATH, "%sThief2Enhanced.dll", managedDir);

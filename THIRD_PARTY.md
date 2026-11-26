@@ -3,7 +3,7 @@
 Thief2Enhanced includes or links against the following third-party components.
 No game code or game assets are distributed with this repository.
 
-## Runtime libraries (`lib/`)
+## Runtime libraries (`lib/`, merged into `Thief2Enhanced.dll` at build time)
 
 | Component | License | Source |
 |---|---|---|

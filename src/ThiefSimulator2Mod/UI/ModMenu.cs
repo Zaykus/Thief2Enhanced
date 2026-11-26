@@ -756,6 +756,14 @@ namespace ThiefSimulator2Mod
             if (GuiHelper.Button("RESET WINDOW SIZE")) ResetWindowSize();
             if (GuiHelper.Button("CLOSE MENU")) Toggle();
             GuiHelper.EndCard();
+
+            GuiHelper.BeginCard(false);
+            GuiHelper.CardHeader("Credits", false, false);
+            GuiHelper.Hint("Mod developer: Zaykus");
+            GuiHelper.Hint("Clarke's Third Law, thief edition:");
+            GuiHelper.Hint("\"Any sufficiently advanced technology is\"");
+            GuiHelper.Hint("\"indistinguishable from a good lockpick.\"");
+            GuiHelper.EndCard();
         }
 
         private void MiscRight()

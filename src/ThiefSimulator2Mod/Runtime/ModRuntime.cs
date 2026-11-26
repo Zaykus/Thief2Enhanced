@@ -43,6 +43,7 @@ namespace ThiefSimulator2Mod
             }
 
             Features.OnUpdate();
+            ModSettings.Tick();
 
             if (Config != null && Input.GetKeyDown(Config.MenuKey))
                 Menu.Toggle();
@@ -66,6 +67,7 @@ namespace ThiefSimulator2Mod
             try
             {
                 Config = ModConfig.Load();
+                ModSettings.Load();
                 Features = new FeatureManager();
                 Features.Initialize();
                 Menu = new ModMenu();
