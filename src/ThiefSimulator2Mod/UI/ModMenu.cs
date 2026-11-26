@@ -428,6 +428,35 @@ namespace ThiefSimulator2Mod
             ModState.InfiniteJumps = GuiHelper.Toggle("Unlimited jumps", ModState.InfiniteJumps);
             ModState.NoClip = GuiHelper.Toggle("No-clip / ghost", ModState.NoClip);
             GuiHelper.EndCard();
+
+            // Read-only readouts keep the right column visually balanced with
+            // the teleport slots on the left.
+            GuiHelper.BeginCard(false);
+            GuiHelper.CardHeader("Live status", false, false);
+            PlayerScript ps = GameContext.PS;
+            if (ps == null)
+            {
+                GuiHelper.Hint("Health: --   Stamina: --");
+                GuiHelper.Hint("Money: --   Debt: --");
+                GuiHelper.Hint("Level: --   Skill points: --");
+                GuiHelper.Hint("Carrying: --");
+                GuiHelper.Hint("Items: --   Sleep gas: --");
+                GuiHelper.Hint("Enter the game to see live values.");
+            }
+            else
+            {
+                GuiHelper.Hint("Health: " + ps.bltHealth.ToString("0") + "%" +
+                    "   Stamina: " + (GameContext.Stamina != null
+                        ? GameContext.Stamina.currentStamina.ToString("0") : "--"));
+                GuiHelper.Hint("Money: " + ps.moneyAm + "   Debt: " + ps.debtAm);
+                GuiHelper.Hint("Level: " + ps.currentLvl + "   Skill points: " + ps.skillXP);
+                GuiHelper.Hint("Carrying: " + ps.currentWeight.ToString("0.##") + " / " +
+                    ps.maxWeight.ToString("0.##"));
+                GuiHelper.Hint("Items: " + (ps.item_IDs != null ? ps.item_IDs.Count.ToString() : "0") +
+                    "   Sleep gas: " + ps.gasLeft.ToString("0") + "%");
+                GuiHelper.Hint("Values update each frame from the live player.");
+            }
+            GuiHelper.EndCard();
         }
 
         // ------------------------------------------------------------ money

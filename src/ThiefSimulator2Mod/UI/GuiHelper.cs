@@ -51,6 +51,7 @@ namespace ThiefSimulator2Mod
         private static GUIStyle _mini;
         private static GUIStyle _reset;
         private static GUIStyle _label;
+        private static GUIStyle _toggleLabel;
         private static GUIStyle _muted;
         private static GUIStyle _hint;
         private static GUIStyle _value;
@@ -279,7 +280,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
-                contentOffset = new Vector2(0f, -4f),
+                contentOffset = new Vector2(0f, 0f),
                 normal = { textColor = ColHeading }
             };
             _mini = new GUIStyle(GUI.skin.label)
@@ -306,6 +307,12 @@ namespace ThiefSimulator2Mod
                 contentOffset = new Vector2(0f, -5f),
                 normal = { textColor = ColText }
             };
+            // Toggle rows centre an IBM Plex label against a 22px switch, which
+            // needs a larger correction than the generic 30px body rows.
+            _toggleLabel = new GUIStyle(_label)
+            {
+                contentOffset = new Vector2(0f, -7f)
+            };
             _muted = new GUIStyle(_label)
             {
                 fontSize = 12,
@@ -325,7 +332,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleRight,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
-                contentOffset = new Vector2(0f, 1f),
+                contentOffset = new Vector2(0f, 2f),
                 normal = { textColor = ColText },
                 hover = { textColor = ColAccentSoft },
                 active = { textColor = ColAccent },
@@ -363,7 +370,7 @@ namespace ThiefSimulator2Mod
                 border = new RectOffset(1, 1, 1, 1),
                 margin = new RectOffset(0, 0, 0, 0),
                 fixedHeight = 18f,
-                contentOffset = new Vector2(0f, -1f),
+                contentOffset = new Vector2(0f, -2f),
                 normal = { background = _btnTex, textColor = ColDim },
                 hover = { background = _btnHoverTex, textColor = ColAccentSoft },
                 active = { background = _btnPressedTex, textColor = ColAccentSoft },
@@ -696,7 +703,7 @@ namespace ThiefSimulator2Mod
         {
             Prepare();
             GUILayout.BeginHorizontal(GUILayout.Height(30f));
-            GUILayout.Label(name, _label, GUILayout.Height(30f), GUILayout.ExpandWidth(true));
+            GUILayout.Label(name, _toggleLabel, GUILayout.Height(30f), GUILayout.ExpandWidth(true));
 
             Rect cell = GUILayoutUtility.GetRect(48f, 30f,
                 GUILayout.Width(48f), GUILayout.Height(30f));
