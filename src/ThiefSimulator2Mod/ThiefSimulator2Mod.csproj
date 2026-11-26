@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>Thief2Enhanced</AssemblyName>
+    <RootNamespace>ThiefSimulator2Mod</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>portable</DebugType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <NoWarn>CS0436;CS1701;CS1702;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GameRoot Condition="'$(GameRoot)' == ''">$(MSBuildThisFileDirectory)..\..\..</GameRoot>
+    <ManagedDir>$(GameRoot)\Thief Simulator 2_Data\Managed</ManagedDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Standalone Harmony library (NOT a loader). Copied next to the mod in Managed/. -->
+    <Reference Include="0Harmony">
+      <HintPath>$(MSBuildThisFileDirectory)..\..\lib\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Bundled OFL fonts, embedded so the menu works without installing them. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\fonts\ChakraPetch-Regular.ttf" LogicalName="ThiefEnhanced.Fonts.ChakraPetch-Regular.ttf" />
+    <EmbeddedResource Include="..\..\fonts\ChakraPetch-SemiBold.ttf" LogicalName="ThiefEnhanced.Fonts.ChakraPetch-SemiBold.ttf" />
+    <EmbeddedResource Include="..\..\fonts\ChakraPetch-Bold.ttf" LogicalName="ThiefEnhanced.Fonts.ChakraPetch-Bold.ttf" />
+    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-Regular.ttf" LogicalName="ThiefEnhanced.Fonts.IBMPlexSans-Regular.ttf" />
+    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-Medium.ttf" LogicalName="ThiefEnhanced.Fonts.IBMPlexSans-Medium.ttf" />
+    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-SemiBold.ttf" LogicalName="ThiefEnhanced.Fonts.IBMPlexSans-SemiBold.ttf" />
+  </ItemGroup>
+
+  <!-- Unity Mono game assemblies, used only at compile time. -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(ManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ManagedDir)\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(ManagedDir)\UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(ManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(ManagedDir)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+# Game data and decompiled references (never commit)
+decompiled/
+docs/
+tools/
+Thief Simulator 2.dll
+Thief Simulator 2_Data/
+UnityPlayer_Orig.dll
+
+# Build output
+src/**/bin/
+src/**/obj/
+native/*.dll
+native/*.lib
+native/*.exp
+native/*.obj
+native/*.pdb
+logs/
+
+# Unused loader libraries
+lib/BepInEx*.dll
+
+# Local editor state
+.vs/
+*.user
