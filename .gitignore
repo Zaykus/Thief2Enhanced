@@ -7,6 +7,7 @@ Thief Simulator 2_Data/
 UnityPlayer_Orig.dll
 
 # Build output
+bin/
 src/**/bin/
 src/**/obj/
 native/*.dll

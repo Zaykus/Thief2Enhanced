@@ -30,7 +30,23 @@ The window is resizable (drag the bottom-right grip) and remembers its size.
 - Visual Studio Build Tools with the **Desktop development with C++** workload
   and a Windows 10/11 SDK (only needed to rebuild the native proxy)
 
-## Install
+## Install from the release zip (no build tools)
+
+1. Close the game.
+2. Extract the zip directly into the game folder (next to
+   `Thief Simulator 2.exe`), or anywhere else and pass `-GameRoot`.
+3. Run the prebuilt installer:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\Thief2Enhanced-v1.0.0\build\install-release.ps1 `
+       -GameRoot "C:\Program Files (x86)\Steam\steamapps\common\Thief Simulator 2"
+   ```
+   `-GameRoot` can be omitted when the extracted folder sits directly in the
+   game folder.
+4. Start the game and press **F1**. The zip contains the compiled
+   `bin\Thief2Enhanced.dll` and `native\UnityPlayer.dll`; no .NET SDK or C++
+   compiler is needed. `build\uninstall.ps1` works for both install methods.
+
+## Install from source
 
 1. Close the game.
 2. Clone the repository anywhere:
