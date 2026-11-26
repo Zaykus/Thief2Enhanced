@@ -130,7 +130,8 @@ namespace ThiefSimulator2Mod
                 motor.originalJumpForce = _origJump * Mathf.Max(0.01f, ModState.JumpHeight);
                 motor.canJump = ModState.InfiniteJumps ? true : _origCanJump;
                 motor.jumpsInRow = ModState.InfiniteJumps ? 999 : _origJumpsInRow;
-                motor.gravityScale = ModState.NoClip ? 0f : Mathf.Clamp01(ModState.Gravity);
+                // The slider allows up to 2x; clamp to the same range.
+                motor.gravityScale = ModState.NoClip ? 0f : Mathf.Clamp(ModState.Gravity, 0f, 2f);
                 motor.ghostMode = ModState.NoClip;
                 motor.neverExhaust = ModState.InfiniteStamina;
 

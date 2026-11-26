@@ -98,8 +98,10 @@ defaultskillpoints=99
 | `menukey` | Any `UnityEngine.KeyCode` name, e.g. `F1`, `Insert`, `F8`. |
 | `showhint` | Draw the small hint chip while the menu is closed. |
 | `windowwidth` | Initial window width (the last resized size is remembered in `PlayerPrefs`). |
-| `defaultmoney` | Starting value of the money field. |
-| `defaultskillpoints` | Starting value of the skill point fields. |
+
+`defaultmoney` and `defaultskillpoints` are accepted for compatibility with
+older configs; the menu starts with its built-in values. The speed keys are
+likewise ignored — use the sliders instead.
 
 ## Building manually
 
@@ -108,10 +110,13 @@ cd native
 .\build.ps1
 
 cd ..\src\ThiefSimulator2Mod
-dotnet build -c Release
+dotnet build -c Release -p:GameRoot="C:\Program Files (x86)\Steam\steamapps\common\Thief Simulator 2"
 ```
 
-`native\build.ps1` auto-detects the newest MSVC toolset and Windows SDK.
+The `-p:GameRoot` argument is optional when the repository lives at
+`<game>\Mod`; it is required for a standalone clone because the project
+compiles against the game's own assemblies. `native\build.ps1` auto-detects the
+newest MSVC toolset and Windows SDK.
 
 ## Repository layout
 

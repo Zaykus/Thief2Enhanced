@@ -26,12 +26,12 @@
 
   <!-- Bundled OFL fonts, embedded so the menu works without installing them. -->
   <ItemGroup>
-    <EmbeddedResource Include="..\..\fonts\ChakraPetch-Regular.ttf" LogicalName="ThiefEnhanced.Fonts.ChakraPetch-Regular.ttf" />
-    <EmbeddedResource Include="..\..\fonts\ChakraPetch-SemiBold.ttf" LogicalName="ThiefEnhanced.Fonts.ChakraPetch-SemiBold.ttf" />
-    <EmbeddedResource Include="..\..\fonts\ChakraPetch-Bold.ttf" LogicalName="ThiefEnhanced.Fonts.ChakraPetch-Bold.ttf" />
-    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-Regular.ttf" LogicalName="ThiefEnhanced.Fonts.IBMPlexSans-Regular.ttf" />
-    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-Medium.ttf" LogicalName="ThiefEnhanced.Fonts.IBMPlexSans-Medium.ttf" />
-    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-SemiBold.ttf" LogicalName="ThiefEnhanced.Fonts.IBMPlexSans-SemiBold.ttf" />
+    <EmbeddedResource Include="..\..\fonts\ChakraPetch-Regular.ttf" LogicalName="Thief2Enhanced.Fonts.ChakraPetch-Regular.ttf" />
+    <EmbeddedResource Include="..\..\fonts\ChakraPetch-SemiBold.ttf" LogicalName="Thief2Enhanced.Fonts.ChakraPetch-SemiBold.ttf" />
+    <EmbeddedResource Include="..\..\fonts\ChakraPetch-Bold.ttf" LogicalName="Thief2Enhanced.Fonts.ChakraPetch-Bold.ttf" />
+    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-Regular.ttf" LogicalName="Thief2Enhanced.Fonts.IBMPlexSans-Regular.ttf" />
+    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-Medium.ttf" LogicalName="Thief2Enhanced.Fonts.IBMPlexSans-Medium.ttf" />
+    <EmbeddedResource Include="..\..\fonts\IBMPlexSans-SemiBold.ttf" LogicalName="Thief2Enhanced.Fonts.IBMPlexSans-SemiBold.ttf" />
   </ItemGroup>
 
   <!-- Unity Mono game assemblies, used only at compile time. -->

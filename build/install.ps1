@@ -15,6 +15,9 @@ if (-not (Test-Path $exe)) {
 $nativeDir = Join-Path $modRoot 'native'
 $project = Join-Path $modRoot 'src\ThiefSimulator2Mod\ThiefSimulator2Mod.csproj'
 $managedDir = Join-Path $GameRoot 'Thief Simulator 2_Data\Managed'
+if (-not (Test-Path (Join-Path $managedDir 'Assembly-CSharp.dll'))) {
+    throw "Assembly-CSharp.dll was not found in '$managedDir'. Pass -GameRoot '<game folder>'."
+}
 
 function Copy-WithRetry {
     param(
@@ -40,7 +43,9 @@ Write-Host '== Building native loader =='
 & (Join-Path $nativeDir 'build.ps1')
 
 Write-Host '== Building Thief2Enhanced =='
-& dotnet build $project -c Release -v minimal
+# The project discovers the game assemblies through GameRoot. Default works
+# only when this repository is <game>\Mod; a standalone clone must pass it.
+& dotnet build $project -c Release -v minimal "-p:GameRoot=$GameRoot"
 if ($LASTEXITCODE -ne 0) { throw 'Managed build failed.' }
 
 Write-Host '== Installing =='
@@ -67,7 +72,8 @@ for ($attempt = 0; $attempt -lt 10; $attempt++)
     }
     catch
     {
-        if ((Get-Item -LiteralPath $engine -ErrorAction SilentlyContinue).Length -lt 100000)
+        $engineItem = Get-Item -LiteralPath $engine -ErrorAction SilentlyContinue
+        if ($engineItem -and $engineItem.Length -lt 100000)
         {
             Write-Host 'UnityPlayer.dll is already the proxy; keeping the running game intact.'
             $engineInstalled = $true

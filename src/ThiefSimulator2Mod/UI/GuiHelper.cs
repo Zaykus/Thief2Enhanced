@@ -7,7 +7,7 @@ using UnityEngine;
 namespace ThiefSimulator2Mod
 {
     /// <summary>
-    /// Flat, square-cornered IMGUI skin for Thief Enhanced: dark heist-tech
+    /// Flat, square-cornered IMGUI skin for Thief2Enhanced: dark heist-tech
     /// surfaces, 1px borders, neon cyan accents and bundled Chakra Petch /
     /// IBM Plex Sans fonts. All glow is limited to the title bar, active
     /// toggles and slider handles.
@@ -49,6 +49,7 @@ namespace ThiefSimulator2Mod
         private static GUIStyle _tabInactive;
         private static GUIStyle _cardTitle;
         private static GUIStyle _mini;
+        private static GUIStyle _reset;
         private static GUIStyle _label;
         private static GUIStyle _muted;
         private static GUIStyle _hint;
@@ -182,14 +183,14 @@ namespace ThiefSimulator2Mod
         {
             try
             {
-                string dir = Path.Combine(Path.GetTempPath(), "ThiefEnhancedFonts");
+                string dir = Path.Combine(Path.GetTempPath(), "Thief2EnhancedFonts");
                 Directory.CreateDirectory(dir);
-                ExtractFont("ThiefEnhanced.Fonts.ChakraPetch-Regular.ttf", dir, "ChakraPetch-Regular.ttf");
-                ExtractFont("ThiefEnhanced.Fonts.ChakraPetch-SemiBold.ttf", dir, "ChakraPetch-SemiBold.ttf");
-                ExtractFont("ThiefEnhanced.Fonts.ChakraPetch-Bold.ttf", dir, "ChakraPetch-Bold.ttf");
-                ExtractFont("ThiefEnhanced.Fonts.IBMPlexSans-Regular.ttf", dir, "IBMPlexSans-Regular.ttf");
-                ExtractFont("ThiefEnhanced.Fonts.IBMPlexSans-Medium.ttf", dir, "IBMPlexSans-Medium.ttf");
-                ExtractFont("ThiefEnhanced.Fonts.IBMPlexSans-SemiBold.ttf", dir, "IBMPlexSans-SemiBold.ttf");
+                ExtractFont("Thief2Enhanced.Fonts.ChakraPetch-Regular.ttf", dir, "ChakraPetch-Regular.ttf");
+                ExtractFont("Thief2Enhanced.Fonts.ChakraPetch-SemiBold.ttf", dir, "ChakraPetch-SemiBold.ttf");
+                ExtractFont("Thief2Enhanced.Fonts.ChakraPetch-Bold.ttf", dir, "ChakraPetch-Bold.ttf");
+                ExtractFont("Thief2Enhanced.Fonts.IBMPlexSans-Regular.ttf", dir, "IBMPlexSans-Regular.ttf");
+                ExtractFont("Thief2Enhanced.Fonts.IBMPlexSans-Medium.ttf", dir, "IBMPlexSans-Medium.ttf");
+                ExtractFont("Thief2Enhanced.Fonts.IBMPlexSans-SemiBold.ttf", dir, "IBMPlexSans-SemiBold.ttf");
             }
             catch (Exception ex)
             {
@@ -278,6 +279,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
+                contentOffset = new Vector2(0f, -4f),
                 normal = { textColor = ColHeading }
             };
             _mini = new GUIStyle(GUI.skin.label)
@@ -288,6 +290,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleCenter,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
+                contentOffset = new Vector2(0f, -4f),
                 normal = { textColor = ColDim },
                 hover = { textColor = ColAccentSoft },
                 active = { textColor = ColAccent },
@@ -300,6 +303,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
+                contentOffset = new Vector2(0f, -5f),
                 normal = { textColor = ColText }
             };
             _muted = new GUIStyle(_label)
@@ -321,6 +325,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleRight,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
+                contentOffset = new Vector2(0f, 1f),
                 normal = { textColor = ColText },
                 hover = { textColor = ColAccentSoft },
                 active = { textColor = ColAccent },
@@ -347,6 +352,27 @@ namespace ThiefSimulator2Mod
             };
             _button = ButtonStyle(_btnTex, _btnHoverTex, _btnPressedTex, _btnFocusTex, 12, 30);
             _buttonSmall = ButtonStyle(_btnTex, _btnHoverTex, _btnPressedTex, _btnFocusTex, 11, 26);
+            _reset = new GUIStyle(GUI.skin.button)
+            {
+                font = _fontBody,
+                fontSize = 10,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                clipping = TextClipping.Overflow,
+                padding = new RectOffset(0, 0, 0, 0),
+                border = new RectOffset(1, 1, 1, 1),
+                margin = new RectOffset(0, 0, 0, 0),
+                fixedHeight = 18f,
+                contentOffset = new Vector2(0f, -1f),
+                normal = { background = _btnTex, textColor = ColDim },
+                hover = { background = _btnHoverTex, textColor = ColAccentSoft },
+                active = { background = _btnPressedTex, textColor = ColAccentSoft },
+                focused = { background = _btnFocusTex, textColor = ColAccentSoft },
+                onNormal = { background = _btnTex, textColor = ColDim },
+                onHover = { background = _btnHoverTex, textColor = ColAccentSoft },
+                onActive = { background = _btnPressedTex, textColor = ColAccentSoft },
+                onFocused = { background = _btnFocusTex, textColor = ColAccentSoft }
+            };
             _footer = new GUIStyle(GUI.skin.label)
             {
                 font = _fontBody,
@@ -355,6 +381,7 @@ namespace ThiefSimulator2Mod
                 alignment = TextAnchor.MiddleLeft,
                 clipping = TextClipping.Overflow,
                 padding = new RectOffset(0, 0, 0, 0),
+                contentOffset = new Vector2(0f, -4f),
                 normal = { textColor = ColDim }
             };
             _footerAccent = new GUIStyle(_footer) { normal = { textColor = ColAccentSoft } };
@@ -590,17 +617,18 @@ namespace ThiefSimulator2Mod
             DrawBar(rect.x, rect.y, rect.width, 1f, ColCardBorder);
             GUI.Label(new Rect(rect.x + 20f, rect.y + 6f, rect.width * 0.6f, 18f), left,
                 highlight ? _footerAccent : _footer);
-            GUI.Label(new Rect(rect.xMax - 340f, rect.y + 6f, 320f, 18f), right, _footerRight);
+            // Leave room for the resize grip at the very corner.
+            GUI.Label(new Rect(rect.xMax - 334f, rect.y + 6f, 300f, 18f), right, _footerRight);
         }
 
         public static void DrawResizeGrip(Rect rect, bool active)
         {
             Prepare();
-            Color color = active ? ColAccent : Alpha(ColDim, 0.55f);
+            Color color = active ? ColAccent : Alpha(ColDim, 0.4f);
             for (int i = 0; i < 3; i++)
             {
                 float offset = i * 4f;
-                DrawBar(rect.xMax - 2f - offset, rect.yMax - 8f + offset, 2f, 1f, color);
+                DrawBar(rect.xMax - 2f - offset, rect.yMax - 2f - offset, 2f, 2f, color);
             }
         }
 
@@ -637,9 +665,9 @@ namespace ThiefSimulator2Mod
             float reserved = 0f;
             if (resettable)
             {
-                reserved = 52f;
-                Rect button = new Rect(row.xMax - reserved, row.y - 1f, reserved, 20f);
-                if (GUI.Button(button, "RESET", _mini)) reset = true;
+                reserved = 54f;
+                Rect button = new Rect(row.xMax - reserved, row.y + 1f, reserved, 18f);
+                if (GUI.Button(button, "RESET", _reset)) reset = true;
             }
 
             SpacedLabel(new Rect(row.x, row.y, row.width - reserved - 6f, 20f),

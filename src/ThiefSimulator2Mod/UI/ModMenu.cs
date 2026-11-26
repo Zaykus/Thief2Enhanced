@@ -105,7 +105,9 @@ namespace ThiefSimulator2Mod
             ModConfig cfg = ModRuntime.Config;
             string key = cfg != null ? cfg.MenuKey.ToString() : "F1";
 
-            if (cfg != null && cfg.ShowHint)
+            // The scrim would dim the chip while the menu is open, so only
+            // draw it in the closed state where it is actually useful.
+            if (cfg != null && cfg.ShowHint && !_open)
                 GuiHelper.HintChip(PluginInfo.Name + "   |   " + key + " = menu");
 
             if (!_open) return;
@@ -259,10 +261,12 @@ namespace ThiefSimulator2Mod
             GUI.skin.verticalScrollbar = GuiHelper.ScrollbarStyle;
             GUI.skin.verticalScrollbarThumb = GuiHelper.ScrollbarThumbStyle;
 
-            _scroll = GUILayout.BeginScrollView(_scroll, false, false,
+            // Always reserve the 6px scrollbar so both columns keep identical
+            // left/right margins whether or not the content overflows.
+            _scroll = GUILayout.BeginScrollView(_scroll, false, true,
                 GUILayout.ExpandHeight(true));
 
-            float columnWidth = (_window.width - 40f - 10f - 16f) * 0.5f;
+            float columnWidth = (_window.width - 2f - 40f - 16f - 6f) * 0.5f;
             GUILayout.BeginHorizontal(GUIStyle.none);
             GUILayout.BeginVertical(GUIStyle.none, GUILayout.Width(columnWidth));
             DrawLeftColumn();
@@ -301,7 +305,7 @@ namespace ThiefSimulator2Mod
                 PluginInfo.Name + " v" + PluginInfo.Version + "   |   " +
                 key.ToUpperInvariant() + " TO CLOSE", highlight);
 
-            Rect grip = new Rect(_window.width - 22f, _window.height - 22f, 14f, 14f);
+            Rect grip = new Rect(_window.width - 18f, _window.height - 18f, 14f, 14f);
             GuiHelper.DrawResizeGrip(grip, _resizing);
             HandleResize(grip);
 
@@ -368,40 +372,41 @@ namespace ThiefSimulator2Mod
 
             PlayerScript ps = GameContext.PS;
             if (ps == null)
-            {
                 GuiHelper.Hint("Enter the game to use teleport slots.");
-            }
-            else
-            {
-                for (int i = 0; i < ModState.Slots.Length; i++)
-                {
-                    ModState.Vector3Store slot = ModState.Slots[i];
-                    if (slot == null)
-                    {
-                        slot = new ModState.Vector3Store();
-                        ModState.Slots[i] = slot;
-                    }
 
-                    GUILayout.BeginHorizontal(GUILayout.Height(26f));
-                    GuiHelper.Muted("SLOT " + (i + 1), GUILayout.Width(46f), GUILayout.Height(26f));
-                    GuiHelper.Muted(slot.HasValue
-                            ? string.Format("({0:0}, {1:0}, {2:0})", slot.X, slot.Y, slot.Z)
-                            : "empty",
-                        GUILayout.ExpandWidth(true), GUILayout.Height(26f));
-                    if (GuiHelper.SmallButton("SAVE", GUILayout.Width(48f)))
-                    {
-                        Vector3 p = ps.transform.position;
-                        slot.X = p.x; slot.Y = p.y; slot.Z = p.z; slot.HasValue = true;
-                        SetStatus("Saved position to slot " + (i + 1));
-                    }
-                    if (GuiHelper.SmallButton("LOAD", GUILayout.Width(48f)) && slot.HasValue)
-                    {
-                        ps.transform.position = new Vector3(slot.X, slot.Y, slot.Z);
-                        SetStatus("Teleported to slot " + (i + 1));
-                    }
-                    GUILayout.EndHorizontal();
+            // Always draw all slots: the menu keeps its shape before the player
+            // spawns, and the controls simply stay disabled until then.
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = ps != null;
+            for (int i = 0; i < ModState.Slots.Length; i++)
+            {
+                ModState.Vector3Store slot = ModState.Slots[i];
+                if (slot == null)
+                {
+                    slot = new ModState.Vector3Store();
+                    ModState.Slots[i] = slot;
                 }
+
+                GUILayout.BeginHorizontal(GUILayout.Height(26f));
+                GuiHelper.Muted("SLOT " + (i + 1), GUILayout.Width(46f), GUILayout.Height(26f));
+                GuiHelper.Muted(slot.HasValue
+                        ? string.Format("({0:0}, {1:0}, {2:0})", slot.X, slot.Y, slot.Z)
+                        : "empty",
+                    GUILayout.ExpandWidth(true), GUILayout.Height(26f));
+                if (GuiHelper.SmallButton("SAVE", GUILayout.Width(48f)))
+                {
+                    Vector3 p = ps.transform.position;
+                    slot.X = p.x; slot.Y = p.y; slot.Z = p.z; slot.HasValue = true;
+                    SetStatus("Saved position to slot " + (i + 1));
+                }
+                if (GuiHelper.SmallButton("LOAD", GUILayout.Width(48f)) && slot.HasValue)
+                {
+                    ps.transform.position = new Vector3(slot.X, slot.Y, slot.Z);
+                    SetStatus("Teleported to slot " + (i + 1));
+                }
+                GUILayout.EndHorizontal();
             }
+            GUI.enabled = wasEnabled;
             GuiHelper.EndCard();
         }
 
@@ -438,14 +443,14 @@ namespace ThiefSimulator2Mod
             }
             ModState.InfiniteMoney = GuiHelper.Toggle("Infinite money", ModState.InfiniteMoney);
             ModState.Money = GuiHelper.IntField("Money", ModState.Money, 0, int.MaxValue);
-            if (GuiHelper.Button("APPLY MONEY")) ApplyMoney();
+            if (GuiHelper.Button("APPLY MONEY")) ApplyMoneyAmount();
             ModState.Debt = GuiHelper.IntField("Debt", ModState.Debt, 0, int.MaxValue);
             GUILayout.BeginHorizontal();
-            if (GuiHelper.Button("APPLY DEBT", GUILayout.ExpandWidth(true))) ApplyMoney();
+            if (GuiHelper.Button("APPLY DEBT", GUILayout.ExpandWidth(true))) ApplyDebtAmount();
             if (GuiHelper.Button("CLEAR DEBT", GUILayout.ExpandWidth(true)))
             {
                 ModState.Debt = 0;
-                ApplyMoney();
+                ApplyDebtAmount();
             }
             GUILayout.EndHorizontal();
             GuiHelper.EndCard();
@@ -506,7 +511,7 @@ namespace ThiefSimulator2Mod
             GuiHelper.BeginCard(points);
             if (GuiHelper.CardHeader("Skill points", points, true))
             {
-                ModState.ResetProgression();
+                ModState.ResetSkillPoints();
                 SetStatus("Skill points reset");
             }
             if (GuiHelper.Button("+10 SKILL POINTS"))
@@ -746,11 +751,20 @@ namespace ThiefSimulator2Mod
 
         // ------------------------------------------------------------ actions
 
-        private static void ApplyMoney()
+        private static void ApplyMoneyAmount()
         {
             PlayerScript ps = GameContext.PS;
             if (ps == null) return;
             ps.moneyAm = ModState.Money;
+            ps.SaveMoneyAmount();
+            try { SPrefs.SetInt("Money", ps.moneyAm); }
+            catch { }
+        }
+
+        private static void ApplyDebtAmount()
+        {
+            PlayerScript ps = GameContext.PS;
+            if (ps == null) return;
             ps.debtAm = ModState.Debt;
             ps.SaveMoneyAmount();
             try { SPrefs.SetInt("Money", ps.moneyAm); }

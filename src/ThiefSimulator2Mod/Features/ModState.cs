@@ -327,6 +327,13 @@ namespace ThiefSimulator2Mod
             ExperienceNext = 0;
         }
 
+        /// <summary>Only the Skill points card; leaves level/XP untouched.</summary>
+        public static void ResetSkillPoints()
+        {
+            SkillPoints = DefaultSkillPoints;
+            SpecialPoints = DefaultSpecialPoints;
+        }
+
         public static void ResetInventory()
         {
             NoItemWeight = false;

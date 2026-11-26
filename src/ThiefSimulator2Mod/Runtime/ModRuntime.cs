@@ -70,7 +70,7 @@ namespace ThiefSimulator2Mod
                 Features.Initialize();
                 Menu = new ModMenu();
 
-                _host = new GameObject("ThiefEnhanced_MenuHost");
+                _host = new GameObject("Thief2Enhanced_MenuHost");
                 Object.DontDestroyOnLoad(_host);
                 _host.AddComponent<ModGuiHost>();
 
