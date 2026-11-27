@@ -2,21 +2,47 @@ param(
     [string]$GameRoot = ''
 )
 
-$ErrorActionPreference = 'Stop'
+ $ErrorActionPreference = 'Stop'
 
-$modRoot = Split-Path -Parent $PSScriptRoot
-if (-not $GameRoot) { $GameRoot = Split-Path -Parent $modRoot }
+ $modRoot = $PSScriptRoot
 
-$exe = Join-Path $GameRoot 'Thief Simulator 2.exe'
-if (-not (Test-Path $exe)) {
-    throw "Thief Simulator 2.exe was not found in '$GameRoot'. Pass -GameRoot '<game folder>'."
+
+if (-not $GameRoot) {
+    $candidates = @(
+        $modRoot,
+        (Split-Path -Parent $modRoot),
+        (Split-Path -Parent (Split-Path -Parent $modRoot))
+    )
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path -LiteralPath (Join-Path $candidate 'Thief Simulator 2.exe'))) {
+            $GameRoot = $candidate
+            break
+        }
+    }
+}
+if (-not $GameRoot) {
+    throw "Thief Simulator 2.exe was not found. Put this file inside the game folder or pass -GameRoot '<game folder>'."
 }
 
-$nativeDir = Join-Path $modRoot 'native'
-$mergeScript = Join-Path $PSScriptRoot 'merge.ps1'
-$managedDir = Join-Path $GameRoot 'Thief Simulator 2_Data\Managed'
-if (-not (Test-Path (Join-Path $managedDir 'Assembly-CSharp.dll'))) {
+ $exe = Join-Path $GameRoot 'Thief Simulator 2.exe'
+ $managedDir = Join-Path $GameRoot 'Thief Simulator 2_Data\Managed'
+if (-not (Test-Path -LiteralPath $exe)) {
+    throw "Thief Simulator 2.exe was not found in '$GameRoot'. Pass -GameRoot '<game folder>'."
+}
+if (-not (Test-Path -LiteralPath (Join-Path $managedDir 'Assembly-CSharp.dll'))) {
     throw "Assembly-CSharp.dll was not found in '$managedDir'. Pass -GameRoot '<game folder>'."
+}
+
+ $proxySource = Join-Path $modRoot 'UnityPlayer.dll'
+ $managedSource = Join-Path $modRoot 'Thief2Enhanced.dll'
+foreach ($file in @($proxySource, $managedSource)) {
+    if (-not (Test-Path -LiteralPath $file)) { throw "Mod file is missing from the package: $file" }
+}
+
+function Test-IsProxyPath {
+    param([Parameter(Mandatory = $true)] [string] $Path)
+    if (-not (Test-Path -LiteralPath $Path)) { return $false }
+    return ((Get-Item -LiteralPath $Path).Length -lt 100000)
 }
 
 function Copy-WithRetry {
@@ -24,70 +50,69 @@ function Copy-WithRetry {
         [Parameter(Mandatory = $true)] [string] $Source,
         [Parameter(Mandatory = $true)] [string] $Destination
     )
-    for ($attempt = 0; $attempt -lt 10; $attempt++)
-    {
-        try
-        {
+    if ([System.IO.Path]::GetFullPath($Source) -ieq [System.IO.Path]::GetFullPath($Destination)) {
+        Write-Host "Already in place: $Destination"
+        return
+    }
+    for ($attempt = 0; $attempt -lt 10; $attempt++) {
+        try {
             Copy-Item -LiteralPath $Source -Destination $Destination -Force -ErrorAction Stop
             return
         }
-        catch
-        {
+        catch {
             if ($attempt -eq 9) { throw "Could not copy $Source to $Destination (file is locked)." }
             Start-Sleep -Milliseconds 500
         }
     }
 }
 
-Write-Host '== Building native loader =='
-& (Join-Path $nativeDir 'build.ps1')
+Write-Host '== Installing Thief2Enhanced =='
+ $engine = Join-Path $GameRoot 'UnityPlayer.dll'
+ $original = Join-Path $GameRoot 'UnityPlayer_Orig.dll'
 
-Write-Host '== Building Thief2Enhanced =='
-# merge.ps1 builds the managed project and folds Harmony/MonoMod into the DLL.
-& $mergeScript -GameRoot $GameRoot
-if ($LASTEXITCODE -ne 0) { throw 'Merged managed build failed.' }
-
-Write-Host '== Installing =='
-$engine = Join-Path $GameRoot 'UnityPlayer.dll'
-$original = Join-Path $GameRoot 'UnityPlayer_Orig.dll'
-
-if (-not (Test-Path $original)) {
-    if (-not (Test-Path $engine)) { throw 'UnityPlayer.dll is missing from the game root.' }
+if (-not (Test-Path -LiteralPath $original)) {
+    if (-not (Test-Path -LiteralPath $engine)) { throw 'UnityPlayer.dll is missing from the game root.' }
+    if (Test-IsProxyPath $engine) {
+        throw @'
+The game's original UnityPlayer.dll was already overwritten and no UnityPlayer_Orig.dll backup exists.
+Restore the engine first: Steam -> right-click Thief Simulator 2 -> Properties -> Installed Files ->
+"Verify integrity of game files", then run INSTALL.bat again.
+'@
+    }
     Copy-Item -LiteralPath $engine -Destination $original
     Write-Host 'Backed up original engine to UnityPlayer_Orig.dll'
 }
 
-# The game may still be running; retry the locked engine DLL copy. If it is
-# already our small proxy, continuing is safe (the managed DLLs are rebuilt).
-$proxySource = Join-Path $nativeDir 'UnityPlayer.dll'
-$engineInstalled = $false
-for ($attempt = 0; $attempt -lt 10; $attempt++)
-{
-    try
-    {
-        Copy-Item -LiteralPath $proxySource -Destination $engine -Force -ErrorAction Stop
-        $engineInstalled = $true
-        break
-    }
-    catch
-    {
-        $engineItem = Get-Item -LiteralPath $engine -ErrorAction SilentlyContinue
-        if ($engineItem -and $engineItem.Length -lt 100000)
-        {
-            Write-Host 'UnityPlayer.dll is already the proxy; keeping the running game intact.'
+ $engineInstalled = $false
+ $samePath = [System.IO.Path]::GetFullPath($proxySource) -ieq [System.IO.Path]::GetFullPath($engine)
+if ($samePath) {
+    Write-Host 'UnityPlayer.dll is already the mod proxy (flat package); skipping copy.'
+    $engineInstalled = $true
+}
+else {
+    for ($attempt = 0; $attempt -lt 10; $attempt++) {
+        try {
+            Copy-Item -LiteralPath $proxySource -Destination $engine -Force -ErrorAction Stop
             $engineInstalled = $true
             break
         }
-        Start-Sleep -Milliseconds 500
+        catch {
+            $engineItem = Get-Item -LiteralPath $engine -ErrorAction SilentlyContinue
+            if ($engineItem -and ($engineItem.Length -lt 100000)) {
+                Write-Host 'UnityPlayer.dll is already the proxy; keeping the running game intact.'
+                $engineInstalled = $true
+                break
+            }
+            if ($attempt -eq 9) { throw 'Could not install the native proxy (UnityPlayer.dll is locked).' }
+            Start-Sleep -Milliseconds 500
+        }
     }
 }
 if (-not $engineInstalled) { throw 'Could not install the native proxy (UnityPlayer.dll is locked).' }
 
-Copy-WithRetry -Source (Join-Path $modRoot 'src\ThiefSimulator2Mod\bin\Release\Thief2Enhanced.dll') -Destination (Join-Path $managedDir 'Thief2Enhanced.dll')
-# Remove the pre-rename assembly so Mono cannot load a stale copy.
+Copy-WithRetry -Source $managedSource -Destination (Join-Path $managedDir 'Thief2Enhanced.dll')
 Remove-Item -LiteralPath (Join-Path $managedDir 'ThiefSimulator2Mod.dll') -Force -ErrorAction SilentlyContinue
-
-New-Item -ItemType Directory -Force -Path (Join-Path $GameRoot 'Mod\config'), (Join-Path $GameRoot 'Mod\logs') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $GameRoot 'Mod\logs') | Out-Null
 
 Write-Host ''
 Write-Host 'Installed Thief2Enhanced.'
